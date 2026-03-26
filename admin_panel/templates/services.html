@@ -1,0 +1,146 @@
+{% extends "dashboard.html" %}
+
+{% block page_title %}🛠 Xizmatlar Boshqaruvi{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        background: var(--panel-dark);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .form-container h2 {
+        margin-bottom: 20px;
+        font-size: 20px;
+    }
+
+    .grid-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        align-items: flex-end;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 10px 15px;
+        border-radius: 10px;
+        color: #fff;
+        font-size: 15px;
+    }
+
+    .btn-action {
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: var(--panel-dark);
+    }
+
+    .btn-danger {
+        background: rgba(231, 76, 60, 0.1);
+        color: var(--danger);
+        border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(78, 204, 163, 0.3);
+    }
+</style>
+
+<div class="form-container">
+    <h2>➕ Yangi Xizmat Qo'shish</h2>
+    <form action="/add_service" method="POST" class="grid-form">
+        <div class="form-group">
+            <label>Nomi</label>
+            <input type="text" name="name" required placeholder="Xizmat nomi">
+        </div>
+        <div class="form-group">
+            <label>Narxi (so'm)</label>
+            <input type="number" name="price" required placeholder="Masalan: 50000">
+        </div>
+        <div class="form-group">
+            <label>Davomiyligi (daqiqa)</label>
+            <input type="number" name="duration" required placeholder="Masalan: 60">
+        </div>
+        <div class="form-group">
+            <label>Kategoriya</label>
+            <input type="text" name="category" placeholder="Masalan: Windows">
+        </div>
+        <div class="form-group">
+            <label>Tavsifi</label>
+            <input type="text" name="description" placeholder="Xizmat haqida qisqacha">
+        </div>
+        <button type="submit" class="btn-action btn-primary">Saqlash</button>
+    </form>
+</div>
+
+<div class="content-card">
+    <h2>📋 Barcha Xizmatlar</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nomi</th>
+                <th>Kategoriya</th>
+                <th>Narxi</th>
+                <th>Vaqti</th>
+                <th>Holat</th>
+                <th>Amallar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in services %}
+            <tr>
+                <td>{{ service.name }}</td>
+                <td>{{ service.category or 'Umumiy' }}</td>
+                <td>{{ "{:,.0f}".format(service.price) }} so'm</td>
+                <td>{{ service.duration }} daq</td>
+                <td>
+                    {% if service.is_active %}
+                    <span
+                        style="color: var(--success); background: rgba(46, 204, 113, 0.1); padding: 4px 8px; border-radius: 6px; font-size: 13px;">Faol</span>
+                    {% else %}
+                    <span
+                        style="color: var(--danger); background: rgba(231, 76, 60, 0.1); padding: 4px 8px; border-radius: 6px; font-size: 13px;">To'xtatilgan</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="display: flex; gap: 10px;">
+                        <a href="/delete_service/{{ service.id }}" class="btn-action btn-danger"
+                            style="text-decoration: none; font-size: 13px;">O'chirish</a>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted);">Xizmatlar mavjud emas</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

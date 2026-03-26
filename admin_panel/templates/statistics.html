@@ -1,0 +1,65 @@
+{% extends "dashboard.html" %}
+
+{% block page_title %}📈 Statistika va Tahlillar{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>💰 Bugungi daromad</h3>
+        <div class="value">{{ "{:,.0f}".format(stats.today_amount) }} so'm</div>
+        <div class="detail">{{ stats.today_orders }} ta buyurtma</div>
+    </div>
+    <div class="stat-card">
+        <h3>📅 Oylik daromad</h3>
+        <div class="value">{{ "{:,.0f}".format(stats.monthly_amount) }} so'm</div>
+        <div class="detail">{{ stats.monthly_orders }} ta buyurtma</div>
+    </div>
+    <div class="stat-card">
+        <h3>👥 Hodimlar soni</h3>
+        <div class="value">{{ workers_ranking | length }} ta</div>
+        <div class="detail">Faol xizmat ko'rsatuvchilar</div>
+    </div>
+    <div class="stat-card">
+        <h3>📊 O'rtacha buyurtma qiymati</h3>
+        <div class="value">
+            {% if stats.monthly_orders > 0 %}
+            {{ "{:,.0f}".format(stats.monthly_amount / stats.monthly_orders) }} so'm
+            {% else %}
+            0 so'm
+            {% endif %}
+        </div>
+        <div class="detail">Oxirgi 30 kunlik tahlil</div>
+    </div>
+</div>
+
+<div class="content-card">
+    <h2>🏆 Hodimlar Ish Faoliyati</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Hodim</th>
+                <th>Buyurtmalar</th>
+                <th>Umumiy Daromad</th>
+                <th>Ulush (100%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for worker in workers_ranking %}
+            <tr>
+                <td>{{ worker.full_name }}</td>
+                <td>{{ worker.total_orders }} ta</td>
+                <td>{{ "{:,.0f}".format(worker.total_amount) }} so'm</td>
+                <td>
+                    <div
+                        style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                        {% set percentage = (worker.total_amount / stats.monthly_amount * 100) if stats.monthly_amount >
+                        0 else 0 %}
+                        <div style="width: {{ percentage }}%; height: 100%; background: var(--primary);"></div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

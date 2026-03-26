@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="uz" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Turon Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4ecca3;
+            --primary-dark: #45b293;
+            --bg-dark: #1a1a2e;
+            --panel-dark: #16213e;
+            --card-dark: #0f3460;
+            --text-light: #ecf0f1;
+            --text-muted: #95a5a6;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--panel-dark);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 100;
+        }
+
+        .sidebar h2 {
+            font-size: 24px;
+            color: var(--primary);
+            margin-bottom: 40px;
+            text-align: center;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .sidebar nav {
+            flex-grow: 1;
+        }
+
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            transition: all 0.3s;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .sidebar nav a:hover,
+        .sidebar nav a.active {
+            background-color: rgba(78, 204, 163, 0.1);
+            color: var(--primary);
+        }
+
+        .sidebar nav a i {
+            margin-right: 15px;
+            font-size: 18px;
+        }
+
+        .logout-section {
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            color: var(--danger);
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+
+        /* Main Content */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            padding: 40px;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info span {
+            color: var(--text-muted);
+            margin-right: 10px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background-color: var(--panel-dark);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(78, 204, 163, 0.2);
+        }
+
+        .stat-card h3 {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .stat-card .value {
+            font-size: 30px;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .stat-card .detail {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        /* Tables & Lists */
+        .content-card {
+            background-color: var(--panel-dark);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .content-card h2 {
+            font-size: 20px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .content-card h2::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 20px;
+            background-color: var(--primary);
+            margin-right: 12px;
+            border-radius: 2px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            font-size: 15px;
+        }
+
+        tr:hover td {
+            color: var(--primary);
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash {
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background-color: rgba(46, 204, 113, 0.1);
+            border: 1px solid rgba(46, 204, 113, 0.2);
+            color: var(--success);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+                padding: 20px 10px;
+            }
+
+            .sidebar h2,
+            .sidebar nav a span {
+                display: none;
+            }
+
+            .main-wrapper {
+                margin-left: 70px;
+                width: calc(100% - 70px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <h2>🖥 Turon</h2>
+        <nav>
+            <a href="/" class="{{ 'active' if request.path == '/' else '' }}">📊 <span>Dashboard</span></a>
+            <a href="/services" class="{{ 'active' if request.path == '/services' else '' }}">🛠
+                <span>Xizmatlar</span></a>
+            <a href="/workers" class="{{ 'active' if request.path == '/workers' else '' }}">👥 <span>Hodimlar</span></a>
+            <a href="/orders" class="{{ 'active' if request.path == '/orders' else '' }}">📦
+                <span>Buyurtmalar</span></a>
+            <a href="/statistics" class="{{ 'active' if request.path == '/statistics' else '' }}">📈
+                <span>Statistika</span></a>
+        </nav>
+        <div class="logout-section">
+            <a href="/logout" class="logout-btn">🚪 <span>Chiqish</span></a>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="header">
+            <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+            <div class="user-info">
+                <span>{{ current_user.username }}</span>
+                <div
+                    style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--panel-dark);">
+                    {{ current_user.username[0].upper() }}
+                </div>
+            </div>
+        </div>
+
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            {% for message in messages %}
+            <div class="flash">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+
+        {% block content %}
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>📦 Bugungi buyurtmalar</h3>
+                <div class="value">{{ stats.today_orders }} ta</div>
+                <div class="detail">{{ "{:,.0f}".format(stats.today_amount) }} so‘m</div>
+            </div>
+            <div class="stat-card">
+                <h3>📊 Oylik buyurtmalar</h3>
+                <div class="value">{{ stats.monthly_orders }} ta</div>
+                <div class="detail">{{ "{:,.0f}".format(stats.monthly_amount) }} so‘m</div>
+            </div>
+            <div class="stat-card">
+                <h3>⏳ Kutilayotganlar</h3>
+                <div class="value">{{ stats.pending_payments }} ta</div>
+                <div class="detail">To‘lov tasdiqlanishini kutmoqda</div>
+            </div>
+            <div class="stat-card">
+                <h3>🔧 Jarayondagilar</h3>
+                <div class="value">{{ stats.in_progress_orders }} ta</div>
+                <div class="detail">Hodimlar ishlayotgan buyurtmalar</div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h2>🏆 Hodimlar reytingi</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Hodim</th>
+                        <th>Buyurtmalar</th>
+                        <th>Daromad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for worker in workers_ranking %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ worker.full_name }}</td>
+                        <td>{{ worker.total_orders }} ta</td>
+                        <td>{{ "{:,.0f}".format(worker.total_amount) }} so‘m</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--text-muted);">Hodimlar mavjud emas</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endblock %}
+    </div>
+</body>
+
+</html>

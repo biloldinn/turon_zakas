@@ -1,0 +1,13 @@
+# Environment Variables
+.env
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Local Database
+*.db
+*.sqlite3
+
+# Uploads/Receipts
+receipts/

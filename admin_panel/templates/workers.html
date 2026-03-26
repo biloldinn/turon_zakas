@@ -1,0 +1,118 @@
+{% extends "dashboard.html" %}
+
+{% block page_title %}👥 Hodimlar Boshqaruvi{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        background: var(--panel-dark);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .form-container h2 {
+        margin-bottom: 20px;
+        font-size: 20px;
+    }
+
+    .grid-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        align-items: flex-end;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-action {
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: var(--panel-dark);
+    }
+
+    .btn-danger {
+        background: rgba(231, 76, 60, 0.1);
+        color: var(--danger);
+        border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+
+    input {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 10px 15px;
+        border-radius: 10px;
+        color: #fff;
+        font-size: 15px;
+    }
+</style>
+
+<div class="form-container">
+    <h2>➕ Yangi Hodim Qo'shish</h2>
+    <form action="/add_worker" method="POST" class="grid-form">
+        <div class="form-group">
+            <label>Telegram ID</label>
+            <input type="number" name="telegram_id" required placeholder="Masalan: 123456789">
+        </div>
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="@username">
+        </div>
+        <div class="form-group">
+            <label>F.I.Sh</label>
+            <input type="text" name="full_name" required placeholder="Ism Familiya">
+        </div>
+        <div class="form-group">
+            <label>Telefon</label>
+            <input type="text" name="phone" required placeholder="+99890XXXXXXX">
+        </div>
+        <button type="submit" class="btn-action btn-primary">Qo'shish</button>
+    </form>
+</div>
+
+<div class="content-card">
+    <h2>👤 Barcha Hodimlar</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Ism Familiya</th>
+                <th>Username</th>
+                <th>Telefon</th>
+                <th>Amallar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for worker in workers %}
+            <tr>
+                <td>{{ worker.telegram_id }}</td>
+                <td>{{ worker.full_name }}</td>
+                <td>{{ worker.username or 'Kiritilmagan' }}</td>
+                <td>{{ worker.phone or 'Kiritilmagan' }}</td>
+                <td>
+                    <a href="/remove_worker/{{ worker.telegram_id }}" class="btn-action btn-danger"
+                        style="text-decoration: none; font-size: 13px;">O'chirish</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted);">Hodimlar mavjud emas</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
