@@ -4,21 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Turon Admin</title>
+    <title>Turon Zakaz | Admin Panel</title>
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Ionicons for icons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Telegram WebApp API -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <style>
         :root {
-            --primary: #4ecca3;
-            --primary-dark: #45b293;
-            --bg-dark: #1a1a2e;
-            --panel-dark: #16213e;
-            --card-dark: #0f3460;
-            --text-light: #ecf0f1;
-            --text-muted: #95a5a6;
-            --danger: #e74c3c;
-            --success: #2ecc71;
-            --warning: #f1c40f;
-            --sidebar-width: 260px;
+            --primary: #4f46e5;
+            /* Indigo */
+            --primary-glow: rgba(79, 70, 229, 0.4);
+            --accent: #10b981;
+            /* Emerald */
+            --warning: #f59e0b;
+            /* Amber */
+            --danger: #ef4444;
+            /* Rose */
+
+            --bg-body: #050510;
+            --bg-card: rgba(20, 20, 35, 0.6);
+            --bg-sidebar: rgba(15, 15, 30, 0.95);
+
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+
+            --sidebar-width: 280px;
+            --glass-blur: 15px;
         }
 
         * {
@@ -26,341 +44,551 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Outfit', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            display: flex;
+            background-color: var(--bg-body);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+            color: var(--text-main);
             min-height: 100vh;
+            display: flex;
             overflow-x: hidden;
         }
 
-        /* Sidebar Styles */
+        /* --- Scrollbar --- */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        /* --- Sidebar --- */
         .sidebar {
             width: var(--sidebar-width);
-            background-color: var(--panel-dark);
+            background: var(--bg-sidebar);
+            backdrop-filter: blur(var(--glass-blur));
+            border-right: 1px solid var(--border);
             height: 100vh;
             position: fixed;
             left: 0;
             top: 0;
             display: flex;
             flex-direction: column;
-            padding: 30px 20px;
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
-            z-index: 100;
+            padding: 2.5rem 1.5rem;
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .sidebar h2 {
-            font-size: 24px;
-            color: var(--primary);
-            margin-bottom: 40px;
-            text-align: center;
-            letter-spacing: 1px;
-            font-weight: 700;
-        }
-
-        .sidebar nav {
-            flex-grow: 1;
-        }
-
-        .sidebar nav a {
+        .logo {
             display: flex;
             align-items: center;
+            gap: 12px;
+            margin-bottom: 3rem;
+            padding-left: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .logo h2 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-menu {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            border-radius: 14px;
             color: var(--text-muted);
             text-decoration: none;
-            padding: 14px 20px;
-            border-radius: 12px;
-            transition: all 0.3s;
-            margin-bottom: 8px;
             font-weight: 500;
+            transition: all 0.3s;
+            border: 1px solid transparent;
         }
 
-        .sidebar nav a:hover,
-        .sidebar nav a.active {
-            background-color: rgba(78, 204, 163, 0.1);
+        .nav-link ion-icon {
+            font-size: 20px;
+        }
+
+        .nav-link:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: rgba(79, 70, 229, 0.1);
             color: var(--primary);
+            border-color: rgba(79, 70, 229, 0.2);
         }
 
-        .sidebar nav a i {
-            margin-right: 15px;
-            font-size: 18px;
-        }
-
-        .logout-section {
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        .logout-wrap {
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
         }
 
         .logout-btn {
-            display: flex;
-            align-items: center;
             color: var(--danger);
-            text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 12px;
-            transition: all 0.3s;
-            font-weight: 600;
         }
 
-        .logout-btn:hover {
-            background-color: rgba(231, 76, 60, 0.1);
-        }
-
-        /* Main Content */
-        .main-wrapper {
+        /* --- Main Content --- */
+        .main-content {
             margin-left: var(--sidebar-width);
-            flex-grow: 1;
-            padding: 40px;
+            flex: 1;
+            padding: 2.5rem;
             width: calc(100% - var(--sidebar-width));
         }
 
-        .header {
+        .header-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
+            margin-bottom: 2.5rem;
         }
 
-        .header h1 {
+        .page-info h1 {
             font-size: 28px;
-            font-weight: 600;
+            font-weight: 700;
+            margin-bottom: 4px;
         }
 
-        .user-info {
+        .page-info p {
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .admin-profile {
             display: flex;
             align-items: center;
+            gap: 15px;
+            background: var(--bg-card);
+            padding: 8px 18px 8px 8px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
         }
 
-        .user-info span {
-            color: var(--text-muted);
-            margin-right: 10px;
+        .admin-avatar {
+            width: 38px;
+            height: 38px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
         }
 
-        /* Stats Cards */
+        /* --- Stats Cards --- */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 2.5rem;
         }
 
         .stat-card {
-            background-color: var(--panel-dark);
-            padding: 25px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s;
+            background: var(--bg-card);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s, border-color 0.3s;
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border-color: rgba(78, 204, 163, 0.2);
+            border-color: rgba(79, 70, 229, 0.3);
         }
 
-        .stat-card h3 {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-bottom: 12px;
-            font-weight: 500;
-        }
-
-        .stat-card .value {
-            font-size: 30px;
-            font-weight: 700;
-            color: var(--text-light);
-            margin-bottom: 5px;
-        }
-
-        .stat-card .detail {
-            font-size: 13px;
-            color: var(--primary);
-            font-weight: 500;
-        }
-
-        /* Tables & Lists */
-        .content-card {
-            background-color: var(--panel-dark);
-            border-radius: 20px;
-            padding: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .content-card h2 {
-            font-size: 20px;
-            margin-bottom: 25px;
-            font-weight: 600;
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 1rem;
         }
 
-        .content-card h2::before {
-            content: '';
-            display: block;
-            width: 4px;
-            height: 20px;
-            background-color: var(--primary);
-            margin-right: 12px;
-            border-radius: 2px;
+        .stat-val {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .stat-badge {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 10px;
+        }
+
+        /* --- Tables --- */
+        .content-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .responsive-table {
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-        }
-
-        th,
-        td {
-            padding: 16px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            min-width: 600px;
         }
 
         th {
+            text-align: left;
+            padding: 12px 16px;
             color: var(--text-muted);
-            font-weight: 500;
-            font-size: 14px;
+            font-size: 13px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
         }
 
         td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
             font-size: 15px;
         }
 
-        tr:hover td {
-            color: var(--primary);
+        tr:last-child td {
+            border-bottom: none;
         }
 
-        /* Flash Messages */
-        .flash-messages {
-            margin-bottom: 20px;
-        }
-
-        .flash {
-            padding: 12px 20px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            background-color: rgba(46, 204, 113, 0.1);
-            border: 1px solid rgba(46, 204, 113, 0.2);
-            color: var(--success);
-            font-size: 14px;
-        }
-
-        /* Responsive */
-        @media (max-width: 992px) {
-            .sidebar {
-                width: 70px;
-                padding: 20px 10px;
+        /* --- Responsive --- */
+        @media (max-width: 1024px) {
+            :root {
+                --sidebar-width: 80px;
             }
 
             .sidebar h2,
-            .sidebar nav a span {
+            .sidebar .nav-link span,
+            .sidebar .logout-wrap span {
                 display: none;
             }
 
-            .main-wrapper {
-                margin-left: 70px;
-                width: calc(100% - 70px);
+            .logo {
+                justify-content: center;
+                padding-left: 0;
             }
+
+            .nav-link {
+                justify-content: center;
+                padding: 15px;
+            }
+
+            .nav-link ion-icon {
+                font-size: 24px;
+            }
+
+            .main-content {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -100%;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 1rem;
+                padding-top: 5rem;
+            }
+
+            .header-top {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: var(--bg-sidebar);
+                backdrop-filter: blur(10px);
+                padding: 15px;
+                margin-bottom: 0;
+                z-index: 900;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .mobile-toggle {
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 10px;
+                font-size: 24px;
+            }
+
+            .admin-profile {
+                padding: 5px;
+            }
+
+            .admin-profile span {
+                display: none;
+            }
+        }
+
+        .mobile-toggle {
+            display: none;
         }
     </style>
 </head>
 
 <body>
-    <div class="sidebar">
-        <h2>🖥 Turon</h2>
-        <nav>
-            <a href="/" class="{{ 'active' if request.path == '/' else '' }}">📊 <span>Dashboard</span></a>
-            <a href="/services" class="{{ 'active' if request.path == '/services' else '' }}">🛠
-                <span>Xizmatlar</span></a>
-            <a href="/workers" class="{{ 'active' if request.path == '/workers' else '' }}">👥 <span>Hodimlar</span></a>
-            <a href="/orders" class="{{ 'active' if request.path == '/orders' else '' }}">📦
-                <span>Buyurtmalar</span></a>
-            <a href="/statistics" class="{{ 'active' if request.path == '/statistics' else '' }}">📈
-                <span>Statistika</span></a>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <div class="logo-icon">T</div>
+            <h2>Turon Zakaz</h2>
+        </div>
+        <nav class="nav-menu">
+            <a href="/" class="nav-link {{ 'active' if request.path == '/' else '' }}">
+                <ion-icon name="grid-outline"></ion-icon>
+                <span>Dashboard</span>
+            </a>
+            <a href="/services" class="nav-link {{ 'active' if request.path == '/services' else '' }}">
+                <ion-icon name="construct-outline"></ion-icon>
+                <span>Xizmatlar</span>
+            </a>
+            <a href="/workers" class="nav-link {{ 'active' if request.path == '/workers' else '' }}">
+                <ion-icon name="people-outline"></ion-icon>
+                <span>Hodimlar</span>
+            </a>
+            <a href="/orders" class="nav-link {{ 'active' if request.path == '/orders' else '' }}">
+                <ion-icon name="cart-outline"></ion-icon>
+                <span>Buyurtmalar</span>
+            </a>
+            <a href="/statistics" class="nav-link {{ 'active' if request.path == '/statistics' else '' }}">
+                <ion-icon name="bar-chart-outline"></ion-icon>
+                <span>Hisobotlar</span>
+            </a>
         </nav>
-        <div class="logout-section">
-            <a href="/logout" class="logout-btn">🚪 <span>Chiqish</span></a>
+        <div class="logout-wrap">
+            <a href="/logout" class="nav-link logout-btn">
+                <ion-icon name="log-out-outline"></ion-icon>
+                <span>Chiqish</span>
+            </a>
         </div>
-    </div>
+    </aside>
 
-    <div class="main-wrapper">
-        <div class="header">
-            <h1>{% block page_title %}Dashboard{% endblock %}</h1>
-            <div class="user-info">
-                <span>{{ current_user.username }}</span>
-                <div
-                    style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--panel-dark);">
-                    {{ current_user.username[0].upper() }}
-                </div>
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header-top">
+            <div class="mobile-toggle" onclick="toggleSidebar()">
+                <ion-icon name="menu-outline"></ion-icon>
             </div>
-        </div>
+            <div class="page-info">
+                <h1>{% block page_title %}Umumiy holat{% endblock %}</h1>
+                <p>Xush kelibsiz, {{ current_user.username }}</p>
+            </div>
+            <div class="admin-profile">
+                <div class="admin-avatar">{{ current_user.username[0].upper() }}</div>
+                <span>Admin</span>
+            </div>
+        </header>
 
-        <div class="flash-messages">
-            {% with messages = get_flashed_messages() %}
-            {% if messages %}
-            {% for message in messages %}
-            <div class="flash">{{ message }}</div>
-            {% endfor %}
-            {% endif %}
-            {% endwith %}
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <div
+            style="background: rgba(16, 185, 129, 0.15); border: 1px solid var(--accent); color: var(--accent); padding: 12px 20px; border-radius: 12px; margin-bottom: 1.5rem; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            {{ message }}
         </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
 
         {% block content %}
+        <!-- Stats -->
         <div class="stats-grid">
             <div class="stat-card">
-                <h3>📦 Bugungi buyurtmalar</h3>
-                <div class="value">{{ stats.today_orders }} ta</div>
-                <div class="detail">{{ "{:,.0f}".format(stats.today_amount) }} so‘m</div>
+                <div class="stat-icon" style="background: rgba(79, 70, 229, 0.1); color: var(--primary);">
+                    <ion-icon name="today-outline"></ion-icon>
+                </div>
+                <div class="stat-badge" style="background: rgba(16, 185, 129, 0.1); color: var(--accent);">Bugun</div>
+                <div class="stat-val">{{ stats.today_orders }}</div>
+                <div class="stat-label">Buyurtmalar soni</div>
             </div>
             <div class="stat-card">
-                <h3>📊 Oylik buyurtmalar</h3>
-                <div class="value">{{ stats.monthly_orders }} ta</div>
-                <div class="detail">{{ "{:,.0f}".format(stats.monthly_amount) }} so‘m</div>
+                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--accent);">
+                    <ion-icon name="cash-outline"></ion-icon>
+                </div>
+                <div class="stat-val">{{ "{:,.0f}".format(stats.today_amount) }}</div>
+                <div class="stat-label">Bugungi tushum (so'm)</div>
             </div>
             <div class="stat-card">
-                <h3>⏳ Kutilayotganlar</h3>
-                <div class="value">{{ stats.pending_payments }} ta</div>
-                <div class="detail">To‘lov tasdiqlanishini kutmoqda</div>
+                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">
+                    <ion-icon name="hourglass-outline"></ion-icon>
+                </div>
+                <div class="stat-val">{{ stats.pending_payments }}</div>
+                <div class="stat-label">To'lovi kutilmoqda</div>
             </div>
             <div class="stat-card">
-                <h3>🔧 Jarayondagilar</h3>
-                <div class="value">{{ stats.in_progress_orders }} ta</div>
-                <div class="detail">Hodimlar ishlayotgan buyurtmalar</div>
+                <div class="stat-icon" style="background: rgba(79, 70, 229, 0.1); color: var(--primary);">
+                    <ion-icon name="flash-outline"></ion-icon>
+                </div>
+                <div class="stat-val">{{ stats.in_progress_orders }}</div>
+                <div class="stat-label">Jarayondagi ishlar</div>
             </div>
         </div>
 
-        <div class="content-card">
-            <h2>🏆 Hodimlar reytingi</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Hodim</th>
-                        <th>Buyurtmalar</th>
-                        <th>Daromad</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for worker in workers_ranking %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td>{{ worker.full_name }}</td>
-                        <td>{{ worker.total_orders }} ta</td>
-                        <td>{{ "{:,.0f}".format(worker.total_amount) }} so‘m</td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="4" style="text-align: center; color: var(--text-muted);">Hodimlar mavjud emas</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="content-section">
+            <div class="section-header">
+                <h2>Oylik ko'rsatkichlar</h2>
+                <div style="color: var(--text-muted); font-size: 14px;">Oxirgi 30 kun</div>
+            </div>
+            <div style="height: 300px; width: 100%;">
+                <canvas id="mainChart"></canvas>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="section-header">
+                <h2>🏆 Top Hodimlar</h2>
+            </div>
+            <div class="responsive-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Hodim ismi</th>
+                            <th>Buyurtmalar</th>
+                            <th>Daromad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for worker in workers_ranking %}
+                        <tr>
+                            <td style="font-weight: 600; color: var(--primary);">0{{ loop.index }}</td>
+                            <td style="font-weight: 500;">{{ worker.full_name }}</td>
+                            <td>{{ worker.total_orders }} ta</td>
+                            <td style="color: var(--accent); font-weight: 600;">{{ "{:,.0f}".format(worker.total_amount)
+                                }} so'm</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
         {% endblock %}
-    </div>
+    </main>
+
+    <script>
+        // Website expanding for Telegram
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            window.Telegram.WebApp.enableClosingConfirmation();
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar.style.left === '0px') {
+                sidebar.style.left = '-100%';
+            } else {
+                sidebar.style.left = '0px';
+            }
+        }
+
+        // Dashboard Chart
+        const ctx = document.getElementById('mainChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Hafta 1', 'Hafta 2', 'Hafta 3', 'Hafta 4'],
+                    datasets: [{
+                        label: 'Buyurtmalar soni',
+                        data: [12, 19, 15, 25],
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#4f46e5',
+                        pointBorderColor: '#fff',
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>

@@ -1,146 +1,203 @@
 {% extends "dashboard.html" %}
 
-{% block page_title %}📦 Buyurtmalar Boshqaruvi{% endblock %}
+{% block page_title %}Buyurtmalar boshqaruvi{% endblock %}
 
 {% block content %}
 <style>
-    .status-badge {
-        padding: 5px 12px;
+    .order-header {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 2rem;
+        overflow-x: auto;
+        padding-bottom: 10px;
+    }
+
+    .filter-tab {
+        padding: 10px 20px;
+        border-radius: 50px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        white-space: nowrap;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .filter-tab.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        box-shadow: 0 4px 15px var(--primary-glow);
+    }
+
+    .order-card {
+        background: var(--bg-card);
+        border-right: 4px solid var(--primary);
+        padding: 1.5rem;
         border-radius: 20px;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid var(--border);
+        transition: 0.3s;
+    }
+
+    .order-card:hover {
+        transform: scale(1.01);
+        background: rgba(30, 30, 45, 0.7);
+    }
+
+    .order-main {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .receipt-thumb {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        background-size: cover;
+        background-position: center;
+        border: 2px solid var(--border);
+        cursor: pointer;
+    }
+
+    .order-info h3 {
+        font-size: 17px;
+        margin-bottom: 4px;
+    }
+
+    .order-info p {
         font-size: 13px;
-        font-weight: 500;
+        color: var(--text-muted);
     }
 
-    .status-new {
-        background: rgba(52, 152, 219, 0.1);
-        color: #3498db;
+    .order-status {
+        text-align: right;
     }
 
-    .status-accepted {
-        background: rgba(46, 204, 113, 0.1);
-        color: #2ecc71;
+    .btn-verify {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--accent);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
 
-    .status-in_progress {
-        background: rgba(241, 194, 15, 0.1);
-        color: #f1c40f;
+    .btn-verify:hover {
+        background: var(--accent);
+        color: white;
     }
 
-    .status-completed {
-        background: rgba(142, 68, 173, 0.1);
-        color: #8e44ad;
-    }
-
-    .status-cancelled {
-        background: rgba(231, 76, 60, 0.1);
-        color: #e74c3c;
-    }
-
-    .payment-badge {
-        font-size: 11px;
-        padding: 2px 6px;
-        border-radius: 4px;
-        margin-left: 5px;
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: 700;
         text-transform: uppercase;
     }
 
-    .payment-pending {
-        background: #f1c40f;
-        color: #000;
-    }
-
-    .payment-confirmed {
-        background: #2ecc71;
-        color: #fff;
-    }
-
-    .btn-action {
-        padding: 6px 12px;
-        border-radius: 8px;
-        font-size: 12px;
-        text-decoration: none;
-        cursor: pointer;
-        display: inline-block;
-        border: none;
-    }
-
-    .btn-view {
-        background: rgba(255, 255, 255, 0.05);
-        color: #fff;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .btn-confirm {
-        background: var(--primary);
-        color: var(--panel-dark);
+    /* Modal Overlay */
+    #imageModal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
     }
 </style>
 
-<div class="content-card">
-    <h2>📋 Barcha Buyurtmalar</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Raqami</th>
-                <th>Xaridor</th>
-                <th>Xizmat</th>
-                <th>Summa</th>
-                <th>Holat</th>
-                <th>Hodim</th>
-                <th>Amallar</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for order in orders %}
-            <tr>
-                <td>{{ order.order_number }}</td>
-                <td>
-                    {{ order.user_name }}<br>
-                    <small style="color: var(--text-muted);">{{ order.user_phone }}</small>
-                </td>
-                <td>{{ order.service_name }}</td>
-                <td>
-                    {{ "{:,.0f}".format(order.total_price) }} so'm
-                    {% if order.payment_status == 'pending' %}
-                    <span class="payment-badge payment-pending">Kutilmoqda</span>
-                    {% elif order.payment_status == 'confirmed' %}
-                    <span class="payment-badge payment-confirmed">To'langan</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <span class="status-badge status-{{ order.status }}">
-                        {{ order.status | upper }}
-                    </span>
-                </td>
-                <td>
-                    {% if order.worker_name %}
-                    {{ order.worker_name }}
-                    {% else %}
-                    <form action="/assign_order/{{ order.id }}" method="POST" style="display: flex; gap: 5px;">
-                        <select name="worker_id"
-                            style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; padding: 4px; font-size: 12px;">
-                            {% for worker in workers %}
-                            <option value="{{ worker.id }}">{{ worker.full_name }}</option>
-                            {% endfor %}
-                        </select>
-                        <button type="submit" class="btn-action btn-confirm">Biriktirish</button>
-                    </form>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if order.payment_status == 'pending' and order.receipt_url %}
-                    <form action="/confirm_payment/{{ order.id }}" method="POST">
-                        <button type="submit" class="btn-action btn-confirm">To'lovni Tasdiqlash</button>
-                    </form>
-                    {% endif %}
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="7" style="text-align: center; color: var(--text-muted);">Buyurtmalar mavjud emas</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="order-header">
+    <div class="filter-tab active">Barchasi</div>
+    <div class="filter-tab">💡 Yangi</div>
+    <div class="filter-tab">💳 To'lov kutilmoqda</div>
+    <div class="filter-tab">🔧 Jarayonda</div>
+    <div class="filter-tab">✅ Tamomlangan</div>
 </div>
+
+<div class="content-section">
+    <div class="section-header">
+        <h2>📦 Buyurtmalar ro'yxati</h2>
+        <div style="font-size: 14px; color: var(--text-muted);">Jami: {{ orders|length }} ta</div>
+    </div>
+
+    {% for order in orders %}
+    <div class="order-card"
+        style="border-left: 4px solid {% if order.status == 'new' %}#f59e0b{% elif order.status == 'completed' %}#10b981{% else %}#4f46e5{% endif %};">
+        <div class="order-main">
+            {% if order.receipt_url %}
+            <div class="receipt-thumb"
+                style="background-image: url('/receipts/{{ order.receipt_url.split('/')[-1] if order.receipt_url else '' }}');"
+                onclick="openModal(this.style.backgroundImage)"></div>
+            {% else %}
+            <div class="receipt-thumb"
+                style="display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05);">
+                <ion-icon name="cash-outline" style="font-size: 24px; color: #94a3b8;"></ion-icon>
+            </div>
+            {% endif %}
+
+            <div class="order-info">
+                <h3>Buyurtma #{{ order.order_number }}</h3>
+                <p>👤 <strong>{{ order.user_name }}</strong> &nbsp; | &nbsp; 🛠 {{ order.service_name }}</p>
+                <p>📞 {{ order.user_phone }} &nbsp; | &nbsp; 📅 {{ order.created_at }}</p>
+            </div>
+        </div>
+
+        <div class="order-status">
+            <div style="margin-bottom: 12px;">
+                <span class="status-badge" style="background: rgba(255,255,255,0.05); color: #fff;">
+                    {{ order.status }}
+                </span>
+            </div>
+
+            <div style="font-weight: 700; font-size: 18px; color: var(--accent); margin-bottom: 10px;">
+                {{ "{:,.0f}".format(order.total_price) }} so'm
+            </div>
+
+            {% if order.payment_status == 'pending' %}
+            <a href="/confirm_pay/{{ order.id }}" class="btn-verify">
+                <ion-icon name="shield-checkmark-outline"></ion-icon>
+                To'lovni tasdiqlash
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 50px; color: var(--text-muted);">
+        <ion-icon name="file-tray-outline" style="font-size: 64px; opacity: 0.3;"></ion-icon>
+        <p style="margin-top: 15px;">Hozircha buyurtmalar yo'q</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Simple Image Modal -->
+<div id="imageModal" onclick="this.style.display='none'">
+    <img id="modalImg" src="" style="max-width: 90%; max-height: 80%; border-radius: 12px; border: 2px solid white;">
+    <p style="color: white; margin-top: 20px; font-weight: 500;">Yopish uchun bosing</p>
+</div>
+
+<script>
+    function openModal(imgUrl) {
+        let cleanUrl = imgUrl.slice(5, -2); // Remove url("") wrap
+        document.getElementById('modalImg').src = cleanUrl;
+        document.getElementById('imageModal').style.display = 'flex';
+    }
+</script>
 {% endblock %}

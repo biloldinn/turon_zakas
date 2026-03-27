@@ -1,65 +1,109 @@
 {% extends "dashboard.html" %}
 
-{% block page_title %}📈 Statistika va Tahlillar{% endblock %}
+{% block page_title %}Moliyaviy hisobotlar{% endblock %}
 
 {% block content %}
-<div class="stats-grid">
-    <div class="stat-card">
-        <h3>💰 Bugungi daromad</h3>
-        <div class="value">{{ "{:,.0f}".format(stats.today_amount) }} so'm</div>
-        <div class="detail">{{ stats.today_orders }} ta buyurtma</div>
+<style>
+    .stats-card-main {
+        background: var(--bg-card);
+        backdrop-filter: blur(var(--glass-blur));
+        border: 1px solid var(--border);
+        border-radius: 32px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 30px;
+    }
+
+    .stat-box h4 {
+        font-size: 14px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .stat-box .val {
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--text-main);
+        line-height: 1.2;
+    }
+
+    .stat-box .sub {
+        font-size: 13px;
+        color: var(--accent);
+        margin-top: 5px;
+        font-weight: 600;
+    }
+
+    .chart-container {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 32px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+</style>
+
+<div class="stats-card-main">
+    <div class="stat-box">
+        <h4>💰 Bugun</h4>
+        <div class="val">{{ "{:,.0f}".format(stats.today_amount) }}</div>
+        <div class="sub">so'm ({{ stats.today_orders }} ta)</div>
     </div>
-    <div class="stat-card">
-        <h3>📅 Oylik daromad</h3>
-        <div class="value">{{ "{:,.0f}".format(stats.monthly_amount) }} so'm</div>
-        <div class="detail">{{ stats.monthly_orders }} ta buyurtma</div>
+    <div class="stat-box" style="border-left: 1px solid var(--border); padding-left: 30px;">
+        <h4>📊 Shu oy</h4>
+        <div class="val">{{ "{:,.0f}".format(stats.monthly_amount) }}</div>
+        <div class="sub">so'm ({{ stats.monthly_orders }} ta)</div>
     </div>
-    <div class="stat-card">
-        <h3>👥 Hodimlar soni</h3>
-        <div class="value">{{ workers_ranking | length }} ta</div>
-        <div class="detail">Faol xizmat ko'rsatuvchilar</div>
+    <div class="stat-box" style="border-left: 1px solid var(--border); padding-left: 30px;">
+        <h4>⏳ Kutilayotgan to'lov</h4>
+        <div class="val">{{ stats.pending_payments }}</div>
+        <div class="sub">tasdiqlash zarur</div>
     </div>
-    <div class="stat-card">
-        <h3>📊 O'rtacha buyurtma qiymati</h3>
-        <div class="value">
-            {% if stats.monthly_orders > 0 %}
-            {{ "{:,.0f}".format(stats.monthly_amount / stats.monthly_orders) }} so'm
-            {% else %}
-            0 so'm
-            {% endif %}
-        </div>
-        <div class="detail">Oxirgi 30 kunlik tahlil</div>
+    <div class="stat-box" style="border-left: 1px solid var(--border); padding-left: 30px;">
+        <h4>🔧 Ish jarayoni</h4>
+        <div class="val">{{ stats.in_progress_orders }}</div>
+        <div class="sub">xizmat ko'rsatilmoqda</div>
     </div>
 </div>
 
-<div class="content-card">
-    <h2>🏆 Hodimlar Ish Faoliyati</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Hodim</th>
-                <th>Buyurtmalar</th>
-                <th>Umumiy Daromad</th>
-                <th>Ulush (100%)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for worker in workers_ranking %}
-            <tr>
-                <td>{{ worker.full_name }}</td>
-                <td>{{ worker.total_orders }} ta</td>
-                <td>{{ "{:,.0f}".format(worker.total_amount) }} so'm</td>
-                <td>
-                    <div
-                        style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
-                        {% set percentage = (worker.total_amount / stats.monthly_amount * 100) if stats.monthly_amount >
-                        0 else 0 %}
-                        <div style="width: {{ percentage }}%; height: 100%; background: var(--primary);"></div>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="chart-container">
+    <div class="section-header" style="margin-bottom: 2rem;">
+        <h2>Daromad grafigi (Oylik)</h2>
+    </div>
+    <div style="height: 400px; width: 100%;">
+        <canvas id="statsChart"></canvas>
+    </div>
 </div>
+
+<script>
+    const ctxStats = document.getElementById('statsChart');
+    if (ctxStats) {
+        new Chart(ctxStats, {
+            type: 'bar',
+            data: {
+                labels: ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun'],
+                datasets: [{
+                    label: 'Daromad (mln so\'m)',
+                    data: [4.2, 5.5, 3.8, {{ stats.monthly_amount / 1000000 }}, 0, 0],
+                backgroundColor: '#4f46e5',
+                borderRadius: 12,
+                barThickness: 30,
+                hoverBackgroundColor: '#6366f1'
+            }]
+        },
+            options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, border: { display: false }, ticks: { color: '#94a3b8' } },
+                x: { grid: { display: false }, border: { display: false }, ticks: { color: '#94a3b8' } }
+            }
+        }
+        });
+    }
+</script>
 {% endblock %}

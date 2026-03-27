@@ -155,9 +155,9 @@ def assign_order_route(order_id):
     flash("Buyurtma hodimga biriktirildi!")
     return redirect(url_for("orders"))
 
-@app.route("/confirm_payment/<int:order_id>", methods=["POST"])
+@app.route("/confirm_pay/<int:order_id>")
 @login_required
-def confirm_payment_route(order_id):
+def confirm_pay_route(order_id):
     update_order_payment_status(order_id, "confirmed")
     flash("To‘lov tasdiqlandi!")
     return redirect(url_for("orders"))

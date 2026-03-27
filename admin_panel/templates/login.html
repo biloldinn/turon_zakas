@@ -4,155 +4,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turon Admin - Kirish</title>
+    <title>Kirish | Turon Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-glow: rgba(79, 70, 229, 0.4);
+            --bg-body: #050510;
+            --text-main: #f8fafc;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
         }
 
         body {
-            font-family: 'Outfit', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: radial-gradient(circle at top left, #1a1a2e, #16213e);
+            background-color: var(--bg-body);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.2) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
             height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            color: #fff;
+            justify-content: center;
+            color: var(--text-main);
+            overflow: hidden;
         }
 
-        .login-container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
+        .login-card {
+            background: rgba(20, 20, 35, 0.6);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-            padding: 40px;
+            padding: 3rem;
+            border-radius: 32px;
             width: 100%;
-            max-width: 400px;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .login-header {
+            max-width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             text-align: center;
-            margin-bottom: 35px;
         }
 
-        .login-header h1 {
-            color: #4ecca3;
+        .logo-box {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 32px;
-            letter-spacing: 1px;
+            color: white;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 0 30px var(--primary-glow);
         }
 
-        .login-header p {
-            color: #95a5a6;
-            margin-top: 8px;
-            font-size: 14px;
+        h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        p {
+            color: #94a3b8;
+            margin-bottom: 2rem;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            position: relative;
+            margin-bottom: 1.5rem;
+            text-align: left;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            color: #ecf0f1;
-            font-weight: 500;
             font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            margin-left: 4px;
         }
 
-        .form-group input {
+        .input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrap ion-icon {
+            position: absolute;
+            left: 16px;
+            color: #64748b;
+            font-size: 20px;
+        }
+
+        input {
             width: 100%;
-            padding: 12px 18px;
             background: rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: #fff;
+            padding: 14px 16px 14px 48px;
+            border-radius: 16px;
+            color: white;
             font-size: 16px;
+            outline: none;
             transition: all 0.3s;
         }
 
-        .form-group input:focus {
-            outline: none;
-            border-color: #4ecca3;
-            box-shadow: 0 0 10px rgba(78, 204, 163, 0.3);
+        input:focus {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.05);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
         }
 
-        button {
+        .login-btn {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #4ecca3 0%, #45b293 100%);
+            background: linear-gradient(135deg, var(--primary), #6366f1);
             color: white;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 16px;
+            border-radius: 16px;
             border: none;
-            border-radius: 12px;
-            font-size: 17px;
-            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 10px;
+            margin-top: 1rem;
+            box-shadow: 0 10px 15px -3px var(--primary-glow);
         }
 
-        button:hover {
+        .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(78, 204, 163, 0.4);
+            box-shadow: 0 15px 25px -5px var(--primary-glow);
         }
 
-        button:active {
-            transform: translateY(0);
-        }
-
-        .alert {
-            background: rgba(231, 76, 60, 0.2);
-            color: #e74c3c;
+        .flash {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
             padding: 12px;
-            border: 1px solid rgba(231, 76, 60, 0.3);
-            border-radius: 10px;
-            margin-bottom: 25px;
-            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
             font-size: 14px;
         }
     </style>
 </head>
 
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <h1>🖥 Turon Admin</h1>
-            <p>Xizmatlarni boshqarish markazi</p>
-        </div>
+    <div class="login-card">
+        <div class="logo-box">T</div>
+        <h2>Xush kelibsiz</h2>
+        <p>Boshqaruv paneliga kiring</p>
 
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         {% for message in messages %}
-        <div class="alert">{{ message }}</div>
+        <div class="flash">{{ message }}</div>
         {% endfor %}
         {% endif %}
         {% endwith %}
 
-        <form method="POST">
+        <form action="/login" method="POST">
             <div class="form-group">
-                <label>👤 Login</label>
-                <input type="text" name="username" required placeholder="Foydalanuvchi nomi">
+                <label>Login</label>
+                <div class="input-wrap">
+                    <ion-icon name="person-outline"></ion-icon>
+                    <input type="text" name="username" placeholder="Admin" required>
+                </div>
             </div>
             <div class="form-group">
-                <label>🔒 Parol</label>
-                <input type="password" name="password" required placeholder="••••••••">
+                <label>Parol</label>
+                <div class="input-wrap">
+                    <ion-icon name="lock-closed-outline"></ion-icon>
+                    <input type="password" name="password" placeholder="••••••••" required>
+                </div>
             </div>
-            <button type="submit">Tizimga kirish</button>
+            <button type="submit" class="login-btn">Kirish</button>
         </form>
     </div>
 </body>

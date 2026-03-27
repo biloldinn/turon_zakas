@@ -158,6 +158,25 @@ def remove_worker(telegram_id):
         cursor.execute("UPDATE users SET role = 'user', is_active = 0 WHERE telegram_id = ?", (telegram_id,))
         conn.commit()
 
+def get_next_worker_round_robin():
+    """Eng kam buyurtma olgan faol hodimni qaytaradi (round-robin)"""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT u.id, u.telegram_id, u.full_name, u.phone,
+                   COUNT(o.id) as active_orders
+            FROM users u
+            LEFT JOIN orders o ON o.worker_id = u.id
+                AND o.status NOT IN ('completed', 'cancelled')
+            WHERE u.role = 'worker' AND u.is_active = 1
+            GROUP BY u.id
+            ORDER BY active_orders ASC, u.id ASC
+            LIMIT 1
+        ''')
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
+
 # ============ SERVICE FUNKSIYALARI ============
 
 def get_all_services(active_only=True):
@@ -208,15 +227,19 @@ def generate_order_number():
 
 def create_order(user_id, service_id, total_price, payment_method, comment=None, voice_note_url=None):
     order_number = generate_order_number()
+    # Round-robin: avtomatik hodim tanlash
+    next_worker = get_next_worker_round_robin()
+    worker_id = next_worker['id'] if next_worker else None
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT INTO orders (order_number, user_id, service_id, total_price, payment_method, comment, voice_note_url)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (order_number, user_id, service_id, total_price, payment_method, comment, voice_note_url))
+            INSERT INTO orders (order_number, user_id, worker_id, service_id, total_price, payment_method, comment, voice_note_url, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (order_number, user_id, worker_id, service_id, total_price, payment_method, comment, voice_note_url,
+              'accepted' if worker_id else 'new'))
         conn.commit()
         order_id = cursor.lastrowid
-        return get_order_by_id(order_id)
+        return get_order_by_id(order_id), next_worker
 
 def get_order_by_id(order_id):
     with get_db() as conn:

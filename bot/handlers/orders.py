@@ -102,8 +102,8 @@ async def get_receipt(message: Message, state: FSMContext, bot: Bot):
     # Foydalanuvchini olish
     user = get_user_by_telegram_id(message.from_user.id)
     
-    # Buyurtma yaratish
-    order = create_order(
+    # Buyurtma yaratish (round-robin bilan)
+    order, assigned_worker = create_order(
         user_id=user['id'],
         service_id=service_id,
         total_price=service_price,
@@ -114,25 +114,48 @@ async def get_receipt(message: Message, state: FSMContext, bot: Bot):
     # Chekni saqlash
     update_order_payment_status(order['id'], "pending", file_path)
     
+    # Hodim haqida xabar
+    worker_info = f"\n👨‍💻 Hodim: {assigned_worker['full_name']}" if assigned_worker else ""
+    
     await message.answer(
         "✅ **Buyurtma qabul qilindi!**\n\n"
         f"📦 Buyurtma raqami: `{order['order_number']}`\n"
-        f"💰 Summa: {service_price:,} so‘m\n\n"
-        "⏳ To‘lov tasdiqlanishi kutilmoqda.\n"
-        "Admin tomonidan tasdiqlangandan so‘ng sizga xabar keladi.",
+        f"💰 Summa: {service_price:,} so'm"
+        f"{worker_info}\n\n"
+        "⏳ To'lov tasdiqlanishi kutilmoqda.\n"
+        "Admin tomonidan tasdiqlangandan so'ng sizga xabar keladi.",
         parse_mode="Markdown"
     )
+    
+    # Biriktirilgan hodimga bildirishnoma
+    if assigned_worker:
+        try:
+            await bot.send_message(
+                assigned_worker['telegram_id'],
+                f"🆕 **Sizga yangi buyurtma biriktirildi!**\n\n"
+                f"📦 #{order['order_number']}\n"
+                f"👤 Mijoz: {user['full_name']}\n"
+                f"📞 Tel: {user.get('phone', 'Noma\'lum')}\n"
+                f"💰 {service_price:,} so'm\n"
+                f"📝 Izoh: {comment or 'Yoq'}\n\n"
+                f"To'lov tasdiqlangandan so'ng ishlashni boshlang.",
+                parse_mode="Markdown"
+            )
+        except:
+            pass
     
     # Adminlarga xabar yuborish
     for admin_id in ADMIN_IDS:
         try:
+            worker_name = assigned_worker['full_name'] if assigned_worker else "Biriktirilmagan"
             await bot.send_message(
                 admin_id,
                 f"🆕 **Yangi buyurtma!**\n\n"
                 f"📦 #{order['order_number']}\n"
                 f"👤 Mijoz: {user['full_name']}\n"
-                f"💰 {service_price:,} so‘m\n"
-                f"📝 Izoh: {comment or 'Yo‘q'}\n\n"
+                f"💰 {service_price:,} so'm\n"
+                f"👨‍💻 Hodim: {worker_name}\n"
+                f"📝 Izoh: {comment or 'Yoq'}\n\n"
                 f"Chek: /check_{order['id']}",
                 parse_mode="Markdown"
             )
