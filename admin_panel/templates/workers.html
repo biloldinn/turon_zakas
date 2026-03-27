@@ -75,42 +75,6 @@
     }
 </style>
 
-<div class="worker-form">
-    <h2 style="font-size: 18px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
-        <ion-icon name="person-add-outline" style="color: var(--primary); font-size: 24px;"></ion-icon>
-        Yangi Hodim Qo'shish
-    </h2>
-    <form action="/add_worker" method="POST" class="form-grid">
-        <div class="form-group">
-            <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Telegram
-                ID</label>
-            <input type="number" name="telegram_id" required placeholder="12345678"
-                style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: #fff;">
-        </div>
-        <div class="form-group">
-            <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Foydalanuvchi
-                nomi (@)</label>
-            <input type="text" name="username" placeholder="username"
-                style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: #fff;">
-        </div>
-        <div class="form-group">
-            <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">F.I.SH</label>
-            <input type="text" name="full_name" required placeholder="Ism Familiya"
-                style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: #fff;">
-        </div>
-        <div class="form-group">
-            <label
-                style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Telefon</label>
-            <input type="text" name="phone" required placeholder="+998991234567"
-                style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: #fff;">
-        </div>
-        <button type="submit"
-            style="background: var(--primary); color: white; font-weight: 700; height: 48px; padding: 0 24px; border-radius: 12px; border: none; cursor: pointer;">
-            Saqlash
-        </button>
-    </form>
-</div>
-
 <div class="section-header" style="margin-bottom: 1.5rem;">
     <h2>💎 Ma'muriyat va Hodimlar</h2>
 </div>
@@ -118,7 +82,7 @@
 <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
     {% for worker in workers %}
     <div class="worker-card">
-        <div class="worker-big-avatar">{{ worker.full_name[0].upper() }}</div>
+        <div class="worker-big-avatar">{{ worker.full_name[0].upper() or 'W' }}</div>
         <h3 style="font-size: 18px; margin-bottom: 4px;">{{ worker.full_name }}</h3>
         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 1rem;">{{ worker.phone }}</p>
 
@@ -134,11 +98,6 @@
             <ion-icon name="checkmark-circle"></ion-icon> Faol hodim
         </span>
         {% endif %}
-
-        <a href="/remove_worker/{{ worker.telegram_id }}" class="btn-delete-worker">
-            <ion-icon name="trash-outline"></ion-icon>
-            O'chirish
-        </a>
     </div>
     {% else %}
     <div style="grid-column: 1 / -1; text-align: center; padding: 50px; color: var(--text-muted);">
