@@ -157,6 +157,18 @@
                 <h3>Buyurtma #{{ order.order_number }}</h3>
                 <p>👤 <strong>{{ order.user_name }}</strong> &nbsp; | &nbsp; 🛠 {{ order.service_name }}</p>
                 <p>📞 {{ order.user_phone }} &nbsp; | &nbsp; 📅 {{ order.created_at }}</p>
+                <div style="margin-top: 5px; color: var(--text-muted); font-size: 13px;">
+                    📝 <strong>Izoh:</strong> {{ order.comment or 'Yoʻq' }}
+                </div>
+                {% if order.voice_note_url %}
+                <div style="margin-top: 8px;">
+                    <audio controls
+                        style="height: 30px; width: 140px; border-radius: 5px; background: #1e1e2d; outline: none; border: 1px solid rgba(255,255,255,0.1);">
+                        <source src="/voice_notes/{{ order.voice_note_url.split('/')[-1] }}" type="audio/ogg">
+                        Ovozni eshitib bo'lmaydi.
+                    </audio>
+                </div>
+                {% endif %}
             </div>
         </div>
 

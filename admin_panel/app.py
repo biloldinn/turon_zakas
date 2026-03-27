@@ -99,6 +99,20 @@ def confirm_pay_route(order_id):
     flash("To‘lov tasdiqlandi!")
     return redirect(url_for("orders"))
 
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_from_directory
+# ... 
+@app.route("/receipts/<path:filename>")
+def get_receipt(filename):
+    # run/receipts/ papkasidan olishi kerak
+    receipt_dir = os.path.join(BASE_DIR, "run", "receipts")
+    return send_from_directory(receipt_dir, filename)
+
+@app.route("/voice_notes/<path:filename>")
+def get_voice(filename):
+    # run/voice_notes/ papkasidan olishi kerak
+    voice_dir = os.path.join(BASE_DIR, "run", "voice_notes")
+    return send_from_directory(voice_dir, filename)
+
 @app.route("/api/ping")
 def ping():
     return jsonify({"status": "ok", "message": "pong"}), 200
