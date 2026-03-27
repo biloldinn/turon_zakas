@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-import sqlite3
 import os
 import sys
 
@@ -30,14 +29,10 @@ class Admin(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    db_path = os.path.join(BASE_DIR, "turon_bot.db")
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM admin_users WHERE id = ?", (user_id,))
-    user = cursor.fetchone()
-    conn.close()
+    from bot.database import get_admin_by_id
+    user = get_admin_by_id(user_id)
     if user:
-        return Admin(user[0], user[1], user[3])
+        return Admin(str(user['_id']), user['username'], user.get('role', 'admin'))
     return None
 
 @app.route("/login", methods=["GET", "POST"])
@@ -46,15 +41,11 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
         
-        db_path = os.path.join(BASE_DIR, "turon_bot.db")
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM admin_users WHERE username = ? AND password = ?", (username, password))
-        user = cursor.fetchone()
-        conn.close()
+        from bot.database import get_admin_user
+        user = get_admin_user(username, password)
         
         if user:
-            admin = Admin(user[0], user[1], user[3])
+            admin = Admin(str(user['_id']), user['username'], user.get('role', 'admin'))
             login_user(admin)
             return redirect(url_for("dashboard"))
         else:

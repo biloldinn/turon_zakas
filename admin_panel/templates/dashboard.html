@@ -527,7 +527,11 @@
                         {% for worker in workers_ranking %}
                         <tr>
                             <td style="font-weight: 600; color: var(--primary);">0{{ loop.index }}</td>
-                            <td style="font-weight: 500;">{{ worker.full_name }}</td>
+                            <td style="font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                                <span
+                                    style="width: 8px; height: 8px; background-color: var(--accent); border-radius: 50%; display: inline-block;"></span>
+                                {{ worker.full_name }}
+                            </td>
                             <td>{{ worker.total_orders }} ta</td>
                             <td style="color: var(--accent); font-weight: 600;">{{ "{:,.0f}".format(worker.total_amount)
                                 }} so'm</td>
