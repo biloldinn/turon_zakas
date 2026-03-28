@@ -3,9 +3,15 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 import os
 import sys
 
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # BASE_DIR should be turon_bot/
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
+
+logger.info("Admin Panel starting with BASE_DIR: %s", BASE_DIR)
 
 from bot.database import (
     get_all_services, add_service, update_service, delete_service,
@@ -124,4 +130,5 @@ def ping():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
+    logger.info("Running Flask app on port %s", port)
     app.run(host="0.0.0.0", port=port, debug=False)
