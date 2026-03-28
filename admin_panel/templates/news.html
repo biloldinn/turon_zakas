@@ -1,0 +1,92 @@
+{% extends "dashboard.html" %}
+
+{% block page_title %}Yangiliklar va E'lonlar{% endblock %}
+
+{% block content %}
+<style>
+    .news-form {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .news-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: 0.3s;
+    }
+
+    .news-card:hover {
+        border-color: var(--primary);
+    }
+
+    .news-meta {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+        display: flex;
+        gap: 15px;
+    }
+
+    .btn-delete-small {
+        color: var(--danger);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+    }
+</style>
+
+<div class="news-form">
+    <h3>📢 Yangi e'lon qo'shish</h3>
+    <form method="POST">
+        <div class="form-group">
+            <label>Sarlavha</label>
+            <input type="text" name="title" class="form-control" required
+                placeholder="Masalan: Yangi imtiyozlar haqida">
+        </div>
+        <div class="form-group">
+            <label>Mazmuni</label>
+            <textarea name="content" class="form-control" rows="4" required
+                placeholder="Xabar matnini kiriting..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">E'lon qilish</button>
+    </form>
+</div>
+
+<div class="content-section">
+    <div class="section-header">
+        <h2>📜 Barcha e'lonlar</h2>
+    </div>
+    {% for item in news %}
+    <div class="news-card">
+        <div class="news-meta">
+            <span>📅 {{ item.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+            <span>👤 {{ item.author }}</span>
+        </div>
+        <h3 style="margin-bottom: 10px;">{{ item.title }}</h3>
+        <p style="color: #cbd5e1; line-height: 1.6;">{{ item.content }}</p>
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
+        <a href="{{ url_for('news_delete', news_id=item.id) }}" class="btn-delete-small"
+            onclick="return confirm('O'chirilsinmi?')">O'chirish</a>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: var(--text-muted);">Hali e'lonlar yo'q</div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -198,3 +198,26 @@ def get_admin_by_id(user_id):
         return db.admin_users.find_one({"_id": ObjectId(user_id)})
     except:
         return None
+
+# ============ YANGILIKLAR VA E'LONLAR ============
+
+def get_all_news(limit=10):
+    news = list(db.news.find().sort("created_at", -1).limit(limit))
+    for item in news:
+        item['id'] = str(item['_id'])
+    return news
+
+def add_news(title, content, author="Admin"):
+    return db.news.insert_one({
+        "title": title,
+        "content": content,
+        "author": author,
+        "created_at": datetime.now()
+    })
+
+def delete_news(news_id):
+    try:
+        db.news.delete_one({"_id": ObjectId(news_id)})
+        return True
+    except:
+        return False

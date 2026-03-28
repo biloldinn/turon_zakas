@@ -17,7 +17,8 @@ from database import (
     get_all_services, add_service, update_service, delete_service,
     get_all_workers, add_worker, remove_worker,
     get_all_orders, get_statistics, get_workers_ranking,
-    assign_order_to_worker, update_order_payment_status, get_user_by_telegram_id
+    assign_order_to_worker, update_order_payment_status, get_user_by_telegram_id,
+    get_all_news, add_news, delete_news
 )
 
 app = Flask(__name__)
@@ -35,7 +36,7 @@ class Admin(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    from bot.database import get_admin_by_id
+    from database import get_admin_by_id
     user = get_admin_by_id(user_id)
     if user:
         return Admin(str(user['_id']), user['username'], user.get('role', 'admin'))
@@ -47,7 +48,7 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
         
-        from bot.database import get_admin_user
+        from database import get_admin_user
         user = get_admin_user(username, password)
         
         if user:
@@ -70,11 +71,13 @@ def logout():
 def dashboard():
     stats = get_statistics()
     workers_ranking = get_workers_ranking()
-    recent_orders = get_all_orders()[:5] # OXIRGI 5TA BUYURTMA
+    recent_orders = get_all_orders()[:5]
+    latest_news = get_all_news(limit=3)
     return render_template("dashboard.html", 
-                         stats=stats, 
-                         workers_ranking=workers_ranking,
-                         recent_orders=recent_orders)
+                          stats=stats, 
+                          workers_ranking=workers_ranking,
+                          recent_orders=recent_orders,
+                          latest_news=latest_news)
 
 @app.route("/services")
 @login_required
@@ -95,6 +98,29 @@ def orders():
     all_orders = get_all_orders()
     workers = get_all_workers()
     return render_template("orders.html", orders=all_orders, workers=workers)
+
+@app.route("/news", methods=["GET", "POST"])
+@login_required
+def news_manage():
+    if request.method == "POST":
+        title = request.form.get("title")
+        content = request.form.get("content")
+        if title and content:
+            add_news(title, content, current_user.username)
+            flash("Yangilik muvaffaqiyatli qo'shildi!")
+        return redirect(url_for("news_manage"))
+    
+    all_news = get_all_news()
+    return render_template("news.html", news=all_news)
+
+@app.route("/news/delete/<news_id>")
+@login_required
+def news_delete(news_id):
+    if delete_news(news_id):
+        flash("Yangilik o'chirildi.")
+    else:
+        flash("Xatolik yuz berdi.")
+    return redirect(url_for("news_manage"))
 
 @app.route("/statistics")
 @login_required

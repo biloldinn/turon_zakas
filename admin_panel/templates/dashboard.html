@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turon Zakaz | Admin Panel</title>
+    <title>Turon Buyurtma | Admin Panel</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Ionicons for icons -->
@@ -428,7 +428,7 @@
     <aside class="sidebar" id="sidebar">
         <div class="logo">
             <div class="logo-icon">T</div>
-            <h2>Turon Zakaz</h2>
+            <h2>Turon Buyurtma</h2>
         </div>
         <nav class="nav-menu">
             <a href="/" class="nav-link {{ 'active' if request.path == '/' else '' }}">
@@ -448,8 +448,12 @@
                 <span>Buyurtmalar</span>
             </a>
             <a href="/statistics" class="nav-link {{ 'active' if request.path == '/statistics' else '' }}">
-                <ion-icon name="bar-chart-outline"></ion-icon>
-                <span>Hisobotlar</span>
+                <ion-icon name="stats-chart-outline"></ion-icon>
+                <span>Statistika</span>
+            </a>
+            <a href="/news" class="nav-link {{ 'active' if request.path == '/news' else '' }}">
+                <ion-icon name="megaphone-outline"></ion-icon>
+                <span>Yangiliklar</span>
             </a>
         </nav>
         <div class="logout-wrap">
@@ -519,6 +523,31 @@
                 </div>
                 <div class="stat-val">{{ stats.in_progress_orders }}</div>
                 <div class="stat-label">Jarayondagi ishlar</div>
+            </div>
+        </div>
+
+        <!-- NEW: RECENT ANNOUNCEMENTS -->
+        <div class="content-section">
+            <div class="section-header" style="justify-content: space-between;">
+                <h2>📢 Oxirgi E'lonlar</h2>
+                <a href="/news"
+                    style="color: var(--primary); text-decoration: none; font-size: 14px; font-weight: 600;">Hammasini
+                    ko'rish <ion-icon name="arrow-forward-outline"></ion-icon></a>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                {% for item in latest_news %}
+                <div
+                    style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); padding: 15px; border-radius: 15px;">
+                    <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">{{
+                        item.created_at.strftime('%d.%m.%Y') }}</div>
+                    <h4 style="margin-bottom: 8px; color: var(--primary);">{{ item.title }}</h4>
+                    <p
+                        style="font-size: 13px; color: #cbd5e1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5;">
+                        {{ item.content }}</p>
+                </div>
+                {% else %}
+                <p style="color: var(--text-muted); padding: 10px;">Hozircha yangiliklar yo'q.</p>
+                {% endfor %}
             </div>
         </div>
 
