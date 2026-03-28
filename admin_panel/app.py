@@ -64,7 +64,11 @@ def logout():
 def dashboard():
     stats = get_statistics()
     workers_ranking = get_workers_ranking()
-    return render_template("dashboard.html", stats=stats, workers_ranking=workers_ranking)
+    recent_orders = get_all_orders()[:5] # OXIRGI 5TA BUYURTMA
+    return render_template("dashboard.html", 
+                         stats=stats, 
+                         workers_ranking=workers_ranking,
+                         recent_orders=recent_orders)
 
 @app.route("/services")
 @login_required
@@ -75,7 +79,8 @@ def services():
 @app.route("/workers")
 @login_required
 def workers():
-    workers = get_workers_ranking() # Ranking contains stats too
+    workers = get_all_workers()
+    # Har bir hodim uchun reytingdan statistika olish (ixtiyoriy, lekin asosiysi hamma chiqadi)
     return render_template("workers.html", workers=workers)
 
 @app.route("/orders")

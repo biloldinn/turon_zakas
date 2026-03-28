@@ -510,6 +510,49 @@
         </div>
 
         <div class="content-section">
+            <div class="section-header" style="justify-content: space-between;">
+                <h2>📦 Oxirgi Buyurtmalar</h2>
+                <a href="/orders"
+                    style="color: var(--primary); text-decoration: none; font-size: 14px; font-weight: 600;">Hammasini
+                    ko'rish
+                    <ion-icon name="arrow-forward-outline"></ion-icon>
+                </a>
+            </div>
+            <div class="responsive-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Mijoz</th>
+                            <th>Xizmat</th>
+                            <th>Summa</th>
+                            <th>Holati</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td>{{ order.order_number }}</td>
+                            <td>{{ order.user_name }}</td>
+                            <td>{{ order.service_name or 'Noma\'lum' }}</td>
+                            <td style="color: var(--accent); font-weight: 600;">{{ "{:,.0f}".format(order.total_price)
+                                }}
+                                so'm</td>
+                            <td>
+                                <span style="padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; 
+                                    background: {% if order.status == 'new' %}rgba(245, 158, 11, 0.1){% else %}rgba(16, 185, 129, 0.1){% endif %};
+                                    color: {% if order.status == 'new' %}#f59e0b{% else %}#10b981{% endif %};">
+                                    {{ order.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-section">
             <div class="section-header">
                 <h2>🏆 Top Hodimlar</h2>
             </div>
