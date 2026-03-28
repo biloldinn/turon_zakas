@@ -126,9 +126,25 @@ def get_voice(filename):
 
 @app.route("/api/ping")
 def ping():
-    return jsonify({"status": "ok", "message": "pong"}), 200
+    try:
+        from database import client
+        client.admin.command('ping')
+        return jsonify({
+            "status": "online",
+            "message": "pong",
+            "db": "connected",
+            "timestamp": datetime.now().isoformat()
+        }), 200
+    except Exception as e:
+        logger.error("Healthcheck failed: %s", str(e))
+        return jsonify({
+            "status": "degraded",
+            "message": "Database connection error",
+            "error": str(e)
+        }), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    logger.info("Running Flask app on port %s", port)
+    logger.info("--- TURON ADMIN PANEL STARTING ---")
+    logger.info("Listening on port: %s", port)
     app.run(host="0.0.0.0", port=port, debug=False)
