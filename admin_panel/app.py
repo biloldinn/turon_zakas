@@ -13,7 +13,7 @@ sys.path.append(BASE_DIR)
 
 logger.info("Admin Panel starting with BASE_DIR: %s", BASE_DIR)
 
-from bot.database import (
+from database import (
     get_all_services, add_service, update_service, delete_service,
     get_all_workers, add_worker, remove_worker,
     get_all_orders, get_statistics, get_workers_ranking,

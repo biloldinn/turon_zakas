@@ -1,7 +1,7 @@
 import pymongo
 from datetime import datetime, timedelta
 from bson.objectid import ObjectId
-from .config import MONGODB_URI, DATABASE_NAME
+from config import MONGODB_URI, DATABASE_NAME
 
 client = pymongo.MongoClient(MONGODB_URI)
 db = client[DATABASE_NAME]
