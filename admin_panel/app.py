@@ -107,6 +107,8 @@ def settings():
     if request.method == "POST":
         new_settings = {
             "phone": request.form.get("phone"),
+            "address": request.form.get("address"),
+            "work_hours": request.form.get("work_hours"),
             "card_number": request.form.get("card_number"),
             "card_owner": request.form.get("card_owner")
         }
@@ -123,9 +125,11 @@ def news_manage():
     if request.method == "POST":
         title = request.form.get("title")
         content = request.form.get("content")
+        image_url = request.form.get("image_url") # Direct URL or simple text for now
+        
         if title and content:
-            add_news(title, content, current_user.username)
-            flash("Yangilik muvaffaqiyatli qo'shildi!")
+            add_news(title, content, current_user.username, image_url)
+            flash("Yangilik muvaffaqiyatli qo'shildi va botga yuborildi!")
         return redirect(url_for("news_manage"))
     all_news = get_all_news()
     return render_template("news.html", news=all_news)

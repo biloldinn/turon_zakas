@@ -354,6 +354,28 @@ def get_admin_by_id(user_id):
     except:
         return None
 
+# ============ SOZLAMALAR ============
+
+def get_settings():
+    settings = db.settings.find_one({"type": "general"})
+    if not settings:
+        return {
+            "phone": "+998 90 123 45 67",
+            "address": "Turon o'quv markazi",
+            "work_hours": "09:00 - 18:00",
+            "card_number": "8600 1234 5678 9012",
+            "card_owner": "TURON OQUV MARKAZI"
+        }
+    return settings
+
+def update_settings(data):
+    db.settings.update_one(
+        {"type": "general"},
+        {"$set": data},
+        upsert=True
+    )
+    return True
+
 # ============ YANGILIKLAR VA E'LONLAR ============
 
 def get_all_news(limit=10):
@@ -362,13 +384,43 @@ def get_all_news(limit=10):
         item['id'] = str(item['_id'])
     return news
 
-def add_news(title, content, author="Admin"):
-    return db.news.insert_one({
+def add_news(title, content, author="Admin", image_url=None):
+    news_res = db.news.insert_one({
         "title": title,
         "content": content,
         "author": author,
+        "image_url": image_url,
         "created_at": datetime.now()
     })
+    
+    # Broadcast to all users
+    users = list(db.users.find({}, {"telegram_id": 1}))
+    import requests
+    import os
+    bot_token = os.getenv("BOT_TOKEN")
+    
+    if bot_token:
+        text = f"📢 <b>{title}</b>\n\n{content}"
+        for user in users:
+            try:
+                if image_url:
+                    # If it's a local path, we might need to send as file, 
+                    # but for now assuming it might be a URL or we send text if URL fails
+                    requests.post(f"https://api.telegram.org/bot{bot_token}/sendPhoto", data={
+                        "chat_id": user['telegram_id'],
+                        "photo": image_url if image_url.startswith('http') else "", # placeholder
+                        "caption": text,
+                        "parse_mode": "HTML"
+                    })
+                else:
+                    requests.post(f"https://api.telegram.org/bot{bot_token}/sendMessage", data={
+                        "chat_id": user['telegram_id'],
+                        "text": text,
+                        "parse_mode": "HTML"
+                    })
+            except: pass
+            
+    return news_res
 
 def delete_news(news_id):
     try:
