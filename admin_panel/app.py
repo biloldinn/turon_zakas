@@ -160,6 +160,25 @@ def cancel_pay_route(order_id):
     flash("To‘lov bekor qilindi!")
     return redirect(url_for("orders"))
 
+@app.route("/orders/assign", methods=["POST"])
+@login_required
+def assign_worker():
+    order_id = request.form.get("order_id")
+    worker_id = request.form.get("worker_id")
+    
+    if order_id and worker_id:
+        assign_order_to_worker(order_id, int(worker_id))
+        
+        # Notify the worker via Bot
+        # (Assuming the bot and admin panel share the same DB and I can't easily call bot logic from here 
+        # unless I use a trigger or the bot polls the DB. 
+        # For now, it updates the DB. The worker will see it in their bot menu.)
+        flash("Hodim muvaffaqiyatli biriktirildi!")
+    else:
+        flash("Xatolik: Hodim yoki buyurtma tanlanmagan.")
+        
+    return redirect(url_for("orders"))
+
 @app.route("/receipts/<path:filename>")
 def get_receipt(filename):
     receipt_dir = os.path.join(BASE_DIR, "receipts")
@@ -173,6 +192,13 @@ def get_voice(filename):
     if not os.path.exists(voice_dir):
         os.makedirs(voice_dir)
     return send_from_directory(voice_dir, filename)
+
+@app.route("/order_photos/<path:filename>")
+def get_order_photo(filename):
+    photo_dir = os.path.join(BASE_DIR, "order_photos")
+    if not os.path.exists(photo_dir):
+        os.makedirs(photo_dir)
+    return send_from_directory(photo_dir, filename)
 
 @app.route("/api/ping")
 def ping():

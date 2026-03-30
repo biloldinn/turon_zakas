@@ -157,7 +157,7 @@ def delete_service(service_id):
 
 # ============ ORDER FUNKSIYALARI ============
 
-def create_order(user_id, service_id, total_price, payment_method, comment=None, voice_note_url=None):
+def create_order(user_id, service_id, total_price, payment_method, comment=None, voice_note_url=None, photos=None, pickup_day=None, pickup_time=None):
     from random import choice
     
     # Generate unique order number
@@ -168,7 +168,7 @@ def create_order(user_id, service_id, total_price, payment_method, comment=None,
     service = get_service_by_id(service_id)
     service_name = service['name'] if service else "Boshqa xizmat"
 
-    # Round-robin worker assignment (simplest: choose random active worker)
+    # Round-robin or random assignment logic
     workers = get_all_workers()
     assigned_worker = choice(workers) if workers else None
     worker_id = assigned_worker['telegram_id'] if assigned_worker else None
@@ -186,6 +186,9 @@ def create_order(user_id, service_id, total_price, payment_method, comment=None,
         "status": "new",
         "comment": comment,
         "voice_note_url": voice_note_url,
+        "photos": photos or [],
+        "pickup_day": pickup_day,
+        "pickup_time": pickup_time,
         "worker_id": worker_id,
         "rating": None,
         "created_at": datetime.now(),
