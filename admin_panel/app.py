@@ -105,10 +105,16 @@ def orders():
 @login_required
 def settings():
     if request.method == "POST":
+        open_time = request.form.get("open_time", "09:00")
+        close_time = request.form.get("close_time", "18:00")
+        work_days = request.form.get("work_days", "Dushanba - Shanba")
         new_settings = {
             "phone": request.form.get("phone"),
             "address": request.form.get("address"),
-            "work_hours": request.form.get("work_hours"),
+            "open_time": open_time,
+            "close_time": close_time,
+            "work_days": work_days,
+            "work_hours": f"{open_time} - {close_time}",
             "card_number": request.form.get("card_number"),
             "card_owner": request.form.get("card_owner")
         }
