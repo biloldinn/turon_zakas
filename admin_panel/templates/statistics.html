@@ -67,47 +67,80 @@
         <div class="val">{{ stats.total_start_users }}</div>
         <div class="sub">/start bosganlar</div>
     </div>
-    <div class="stat-box" style="border-left: 1px solid var(--border); padding-left: 30px;">
-        <h4>🔧 Ish jarayoni</h4>
-        <div class="val">{{ stats.in_progress_orders }}</div>
-        <div class="sub">xizmat ko'rsatilmoqda</div>
-    </div>
 </div>
 
-<div class="chart-container">
-    <div class="section-header" style="margin-bottom: 2rem;">
-        <h2>Daromad grafigi (Oylik)</h2>
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+    <div class="chart-container">
+        <div class="section-header" style="margin-bottom: 2rem;">
+            <h2>Daromad grafigi (Oylik Trend)</h2>
+        </div>
+        <div style="height: 350px; width: 100%;">
+            <canvas id="statsChart"></canvas>
+        </div>
     </div>
-    <div style="height: 400px; width: 100%;">
-        <canvas id="statsChart"></canvas>
+
+    <div class="chart-container">
+        <div class="section-header" style="margin-bottom: 2rem;">
+            <h2>Top xizmatlar</h2>
+        </div>
+        <div style="height: 350px; width: 100%;">
+            <canvas id="servicesChart"></canvas>
+        </div>
     </div>
 </div>
 
 <script>
+    // Main Trend Chart
     const ctxStats = document.getElementById('statsChart');
     if (ctxStats) {
         new Chart(ctxStats, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun'],
                 datasets: [{
                     label: 'Daromad (mln so\'m)',
-                    data: [4.2, 5.5, 3.8, {{ stats.monthly_amount / 1000000 }}, 0, 0],
-                backgroundColor: '#4f46e5',
-                borderRadius: 12,
-                barThickness: 30,
-                hoverBackgroundColor: '#6366f1'
-            }]
-        },
-            options: {
-            responsive: true,
+                    data: [4.2, 5.5, 6.8, {{ (stats.monthly_amount / 1000000) | round(1) }}, 0, 0],
+            borderColor: '#4f46e5',
+            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+            fill: true,
+            tension: 0.4,
+            borderWidth: 4,
+            pointRadius: 6,
+            pointHoverRadius: 8
+        }]
+            },
+    options: {
+        responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { grid: { color: 'rgba(255,255,255,0.05)' }, border: { display: false }, ticks: { color: '#94a3b8' } },
-                x: { grid: { display: false }, border: { display: false }, ticks: { color: '#94a3b8' } }
-            }
+                plugins: { legend: { display: false } },
+        scales: {
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, border: { display: false }, ticks: { color: '#94a3b8' } },
+            x: { grid: { display: false }, border: { display: false }, ticks: { color: '#94a3b8' } }
         }
+    }
+        });
+    }
+
+    // Pie Chart for Services
+    const ctxServices = document.getElementById('servicesChart');
+    if (ctxServices) {
+        new Chart(ctxServices, {
+            type: 'doughnut',
+            data: {
+                labels: ['Scanning', 'Printing', 'Design', 'Other'],
+                datasets: [{
+                    data: [40, 25, 20, 15],
+                    backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#3b82f6'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 12 } } },
+                cutout: '70%'
+            }
         });
     }
 </script>
