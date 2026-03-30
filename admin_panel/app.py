@@ -91,15 +91,31 @@ def services():
 @app.route("/workers")
 @login_required
 def workers():
-    workers = get_all_workers()
-    return render_template("workers.html", workers=workers)
+    workers_list = get_workers_ranking() # This has balance and rating
+    return render_template("workers.html", workers=workers_list)
 
 @app.route("/orders")
 @login_required
 def orders():
     all_orders = get_all_orders()
-    workers = get_all_workers()
-    return render_template("orders.html", orders=all_orders, workers=workers)
+    workers_list = get_all_workers()
+    return render_template("orders.html", orders=all_orders, workers=workers_list)
+
+@app.route("/settings", methods=["GET", "POST"])
+@login_required
+def settings():
+    if request.method == "POST":
+        new_settings = {
+            "phone": request.form.get("phone"),
+            "card_number": request.form.get("card_number"),
+            "card_owner": request.form.get("card_owner")
+        }
+        update_settings(new_settings)
+        flash("Sozlamalar muvaffaqiyatli saqlandi!")
+        return redirect(url_for("settings"))
+    
+    current_settings = get_settings()
+    return render_template("settings.html", settings=current_settings)
 
 @app.route("/news", methods=["GET", "POST"])
 @login_required
@@ -135,6 +151,13 @@ def statistics():
 def confirm_pay_route(order_id):
     update_order_payment_status(order_id, "confirmed")
     flash("To‘lov tasdiqlandi!")
+    return redirect(url_for("orders"))
+
+@app.route("/cancel_pay/<order_id>")
+@login_required
+def cancel_pay_route(order_id):
+    update_order_payment_status(order_id, "cancelled")
+    flash("To‘lov bekor qilindi!")
     return redirect(url_for("orders"))
 
 @app.route("/receipts/<path:filename>")

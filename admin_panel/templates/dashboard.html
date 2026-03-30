@@ -455,8 +455,17 @@
                 <ion-icon name="megaphone-outline"></ion-icon>
                 <span>Yangiliklar</span>
             </a>
+            <a href="/settings" class="nav-link {{ 'active' if request.path == '/settings' else '' }}">
+                <ion-icon name="settings-outline"></ion-icon>
+                <span>Sozlamalar</span>
+            </a>
         </nav>
         <div class="logout-wrap">
+            <a href="https://t.me/Dasturchi_bt" target="_blank" class="nav-link"
+                style="color: var(--accent); margin-bottom: 5px;">
+                <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+                <span>Bog'lanish</span>
+            </a>
             <a href="/logout" class="nav-link logout-btn">
                 <ion-icon name="log-out-outline"></ion-icon>
                 <span>Chiqish</span>

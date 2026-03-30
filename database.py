@@ -22,6 +22,28 @@ def init_db():
             "role": "superadmin",
             "created_at": datetime.now()
         })
+    
+    # Check if settings exist
+    settings = db.settings.find_one({"type": "general"})
+    if not settings:
+        db.settings.insert_one({
+            "type": "general",
+            "phone": "+998 90 123 45 67",
+            "card_number": "8600 0000 0000 0000",
+            "card_owner": "TURON ADMIN",
+            "address": "Markaziy bino"
+        })
+
+# ============ SETTINGS FUNKSIYALARI ============
+
+def get_settings():
+    return db.settings.find_one({"type": "general"})
+
+def update_settings(new_settings):
+    db.settings.update_one(
+        {"type": "general"},
+        {"$set": new_settings}
+    )
 
 # ============ USER FUNKSIYALARI ============
 
@@ -34,6 +56,9 @@ def get_or_create_user(telegram_id, username=None, full_name=None):
             "full_name": full_name,
             "phone": None,
             "role": "user",
+            "balance": 0,
+            "rating_sum": 0,
+            "rating_count": 0,
             "is_active": True,
             "created_at": datetime.now()
         }
@@ -44,8 +69,13 @@ def get_or_create_user(telegram_id, username=None, full_name=None):
 def get_user_by_telegram_id(telegram_id):
     return db.users.find_one({"telegram_id": telegram_id})
 
+def get_all_users_count():
+    return db.users.count_documents({})
+
 def get_all_workers():
     workers = list(db.users.find({"role": "worker", "is_active": True}))
+    for w in workers:
+        w['id'] = str(w['_id'])
     return workers
 
 def add_worker(telegram_id, username, full_name, phone):
@@ -56,7 +86,8 @@ def add_worker(telegram_id, username, full_name, phone):
             "full_name": full_name,
             "phone": phone,
             "role": "worker",
-            "is_active": True
+            "is_active": True,
+            "balance": 0
         }},
         upsert=True
     )
@@ -66,6 +97,18 @@ def remove_worker(telegram_id):
         {"telegram_id": telegram_id},
         {"$set": {"role": "user", "is_active": False}}
     )
+
+def update_worker_balance(worker_id, amount):
+    db.users.update_one(
+        {"telegram_id": worker_id},
+        {"$inc": {"balance": float(amount)}}
+    )
+
+def update_user_name(telegram_id, full_name):
+    db.users.update_one({"telegram_id": telegram_id}, {"$set": {"full_name": full_name}})
+
+def update_user_phone(telegram_id, phone):
+    db.users.update_one({"telegram_id": telegram_id}, {"$set": {"phone": phone}})
 
 # ============ SERVICE FUNKSIYALARI ============
 
@@ -114,6 +157,55 @@ def delete_service(service_id):
 
 # ============ ORDER FUNKSIYALARI ============
 
+def create_order(user_id, service_id, total_price, payment_method, comment=None, voice_note_url=None):
+    from random import choice
+    
+    # Generate unique order number
+    import random
+    order_number = f"T{random.randint(10000, 99999)}"
+    
+    user = get_user_by_telegram_id(user_id)
+    service = get_service_by_id(service_id)
+    service_name = service['name'] if service else "Boshqa xizmat"
+
+    # Round-robin worker assignment (simplest: choose random active worker)
+    workers = get_all_workers()
+    assigned_worker = choice(workers) if workers else None
+    worker_id = assigned_worker['telegram_id'] if assigned_worker else None
+
+    order_doc = {
+        "order_number": order_number,
+        "user_id": user_id,
+        "user_name": user['full_name'],
+        "user_phone": user.get('phone'),
+        "service_id": service_id,
+        "service_name": service_name,
+        "total_price": float(total_price),
+        "payment_method": payment_method,
+        "payment_status": "pending" if payment_method == "receipt" else "at_location",
+        "status": "new",
+        "comment": comment,
+        "voice_note_url": voice_note_url,
+        "worker_id": worker_id,
+        "rating": None,
+        "created_at": datetime.now(),
+        "completed_at": None,
+        "accepted_at": None
+    }
+    
+    res = db.orders.insert_one(order_doc)
+    order_doc['id'] = str(res.inserted_id)
+    return order_doc, assigned_worker
+
+def get_order_by_id(order_id):
+    try:
+        order = db.orders.find_one({"_id": ObjectId(order_id)})
+        if order:
+            order['id'] = str(order['_id'])
+        return order
+    except:
+        return None
+
 def get_all_orders():
     orders = list(db.orders.find().sort("created_at", -1))
     for o in orders:
@@ -123,15 +215,45 @@ def get_all_orders():
             o['worker_name'] = worker['full_name'] if worker else "Noma'lum"
     return orders
 
+def get_orders_by_user(user_id):
+    orders = list(db.orders.find({"user_id": user_id}).sort("created_at", -1))
+    for o in orders:
+        o['id'] = str(o['_id'])
+    return orders
+
 def update_order_payment_status(order_id, status, receipt_url=None):
     update_data = {"payment_status": status}
     if receipt_url:
         update_data["receipt_url"] = receipt_url
     
+    order = get_order_by_id(order_id)
+    if not order: return
+    
     db.orders.update_one(
         {"_id": ObjectId(order_id)},
         {"$set": update_data}
     )
+    
+    # If confirmed and has a worker, add to balance
+    if status == "confirmed" and order.get('worker_id'):
+        update_worker_balance(order['worker_id'], order['total_price'])
+
+def update_order_status(order_id, status):
+    update_data = {"status": status}
+    if status == "completed":
+        update_data["completed_at"] = datetime.now()
+    
+    order = get_order_by_id(order_id)
+    if not order: return
+
+    db.orders.update_one(
+        {"_id": ObjectId(order_id)},
+        {"$set": update_data}
+    )
+    
+    # If completed and payment_method is at_location, add to balance
+    if status == "completed" and order.get('payment_method') == "at_location" and order.get('worker_id'):
+        update_worker_balance(order['worker_id'], order['total_price'])
 
 def assign_order_to_worker(order_id, worker_id):
     db.orders.update_one(
@@ -139,55 +261,85 @@ def assign_order_to_worker(order_id, worker_id):
         {"$set": {"worker_id": worker_id, "status": "accepted", "accepted_at": datetime.now()}}
     )
 
+def rate_order(order_id, rating):
+    order = get_order_by_id(order_id)
+    if not order or not order.get('worker_id'): return
+    
+    db.orders.update_one(
+        {"_id": ObjectId(order_id)},
+        {"$set": {"rating": int(rating)}}
+    )
+    
+    # Update worker's rating
+    db.users.update_one(
+        {"telegram_id": order['worker_id']},
+        {"$inc": {"rating_sum": int(rating), "rating_count": 1}}
+    )
+
 # ============ STATISTIKA ============
 
 def get_statistics():
-    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    now = datetime.now()
+    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     
     today_orders = db.orders.count_documents({"created_at": {"$gte": today}})
     
-    pipeline = [
-        {"$match": {"created_at": {"$gte": today}}},
+    # Today amount
+    today_res = list(db.orders.aggregate([
+        {"$match": {"created_at": {"$gte": today}, "status": {"$ne": "cancelled"}}},
         {"$group": {"_id": None, "total": {"$sum": "$total_price"}}}
-    ]
-    today_res = list(db.orders.aggregate(pipeline))
+    ]))
     today_amount = today_res[0]['total'] if today_res else 0
+
+    # Monthly amount
+    month_res = list(db.orders.aggregate([
+        {"$match": {"created_at": {"$gte": month_start}, "status": {"$ne": "cancelled"}}},
+        {"$group": {"_id": None, "total": {"$sum": "$total_price"}, "count": {"$sum": 1}}}
+    ]))
+    monthly_amount = month_res[0]['total'] if month_res else 0
+    monthly_orders = month_res[0]['count'] if month_res else 0
 
     pending = db.orders.count_documents({"payment_status": "pending"})
     in_progress = db.orders.count_documents({"status": {"$in": ["accepted", "in_progress"]}})
+    total_users = db.users.count_documents({})
 
     return {
         "today_orders": today_orders,
         "today_amount": today_amount,
-        "monthly_orders": 0,
-        "monthly_amount": 0,
+        "monthly_orders": monthly_orders,
+        "monthly_amount": monthly_amount,
         "pending_payments": pending,
-        "in_progress_orders": in_progress
+        "in_progress_orders": in_progress,
+        "total_start_users": total_users
     }
 
 def get_workers_ranking():
-    pipeline = [
-        {"$group": {
-            "_id": "$worker_id", 
-            "total_orders": {"$sum": 1},
-            "total_amount": {"$sum": "$total_price"}
-        }},
-        {"$sort": {"total_amount": -1}}
-    ]
-    results = list(db.orders.aggregate(pipeline))
-    
+    # Use users collection for stats to include balance and average rating
+    workers = list(db.users.find({"role": "worker"}))
     ranking = []
-    for res in results:
-        if res['_id']:
-            worker = db.users.find_one({"telegram_id": res['_id']})
-            if worker:
-                ranking.append({
-                    "full_name": worker['full_name'],
-                    "total_orders": res['total_orders'],
-                    "total_amount": res['total_amount'],
-                    "phone": worker.get('phone', ''),
-                    "is_active": worker.get('is_active', True)
-                })
+    
+    for w in workers:
+        # Get count of completed orders
+        completed_count = db.orders.count_documents({"worker_id": w['telegram_id'], "status": "completed"})
+        
+        avg_rating = 0
+        if w.get('rating_count', 0) > 0:
+            avg_rating = round(w['rating_sum'] / w['rating_count'], 1)
+            
+        ranking.append({
+            "full_name": w['full_name'],
+            "telegram_id": w['telegram_id'],
+            "total_orders": completed_count,
+            "total_amount": w.get('balance', 0), # Balance is their earned amount
+            "rating": avg_rating,
+            "rating_count": w.get('rating_count', 0),
+            "phone": w.get('phone', ''),
+            "is_active": w.get('is_active', True)
+        })
+    
+    # Sort by balance descending
+    ranking.sort(key=lambda x: x['total_amount'], reverse=True)
     return ranking
 
 def get_admin_user(username, password):

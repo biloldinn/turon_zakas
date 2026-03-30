@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="uz" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sozlamalar | Turon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-glow: rgba(79, 70, 229, 0.4);
+            --accent: #10b981;
+            --bg-body: #050510;
+            --bg-card: rgba(20, 20, 35, 0.6);
+            --bg-sidebar: rgba(15, 15, 30, 0.95);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --sidebar-width: 280px;
+            --glass-blur: 15px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-sidebar);
+            backdrop-filter: blur(var(--glass-blur));
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 2.5rem 1.5rem;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 3rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            border-radius: 14px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .nav-link:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+            border-color: rgba(79, 70, 229, 0.2);
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 2.5rem;
+            max-width: 1000px;
+        }
+
+        header {
+            margin-bottom: 2.5rem;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .form-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            backdrop-filter: blur(var(--glass-blur));
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 15px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 15px rgba(79, 70, 229, 0.15);
+        }
+
+        .btn-save {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px var(--primary-glow);
+        }
+
+        .alert {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--accent);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">T</div>
+            <h2>Turon Panel</h2>
+        </div>
+        <nav class="nav-menu">
+            <a href="/" class="nav-link"><ion-icon name="grid-outline"></ion-icon> <span>Dashboard</span></a>
+            <a href="/services" class="nav-link"><ion-icon name="construct-outline"></ion-icon>
+                <span>Xizmatlar</span></a>
+            <a href="/workers" class="nav-link"><ion-icon name="people-outline"></ion-icon> <span>Hodimlar</span></a>
+            <a href="/orders" class="nav-link"><ion-icon name="cart-outline"></ion-icon> <span>Buyurtmalar</span></a>
+            <a href="/statistics" class="nav-link"><ion-icon name="stats-chart-outline"></ion-icon>
+                <span>Statistika</span></a>
+            <a href="/settings" class="nav-link active"><ion-icon name="settings-outline"></ion-icon>
+                <span>Sozlamalar</span></a>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <header>
+            <h1>Tizim Sozlamalari</h1>
+            <p style="color: var(--text-muted);">Bot va to'lov ma'lumotlarini tahrirlash</p>
+        </header>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}<div class="alert"><ion-icon name="checkmark-circle"></ion-icon> {{ message }}
+        </div>{% endfor %}
+        {% endif %}
+        {% endwith %}
+        <div class="form-card">
+            <form action="/settings" method="POST">
+                <div class="form-group">
+                    <label>📞 Aloqa uchun telefon:</label>
+                    <input type="text" name="phone" value="{{ settings.phone }}" placeholder="+998 90 123 45 67">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>💳 Karta raqami:</label>
+                        <input type="text" name="card_number" value="{{ settings.card_number }}"
+                            placeholder="8600 0000 0000 0000">
+                    </div>
+                    <div class="form-group">
+                        <label>👤 Karta egasi:</label>
+                        <input type="text" name="card_owner" value="{{ settings.card_owner }}"
+                            placeholder="ISM FAMILIYA">
+                    </div>
+                </div>
+                <button type="submit" class="btn-save">O'zgarishlarni saqlash</button>
+            </form>
+        </div>
+    </main>
+</body>
+
+</html>

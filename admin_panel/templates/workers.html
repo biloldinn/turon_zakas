@@ -92,10 +92,21 @@
             </div>
         </div>
 
+        <div style="display: flex; gap: 8px; margin-top: 10px; align-items: center justify-content: center;">
+            <div class="stat-badge"
+                style="background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2);">
+                ⭐ {{ worker.rating or 0 }}
+            </div>
+            <div class="stat-badge"
+                style="background: rgba(79, 70, 229, 0.1); color: var(--primary); border: 1px solid rgba(79, 70, 229, 0.2);">
+                {{ worker.rating_count or 0 }} baho
+            </div>
+        </div>
+
         {% if worker.is_active %}
         <span
-            style="font-size: 12px; color: var(--accent); font-weight: 500; display: flex; align-items: center; gap: 4px;">
-            <ion-icon name="checkmark-circle"></ion-icon> Faol hodim
+            style="font-size: 11px; margin-top: 15px; color: var(--accent); font-weight: 600; display: flex; align-items: center; gap: 4px; padding: 4px 12px; background: rgba(16, 185, 129, 0.1); border-radius: 100px;">
+            <ion-icon name="radio-button-on-outline"></ion-icon> FAOL
         </span>
         {% endif %}
     </div>
