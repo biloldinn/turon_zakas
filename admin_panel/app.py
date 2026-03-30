@@ -169,11 +169,26 @@ def assign_worker():
     if order_id and worker_id:
         assign_order_to_worker(order_id, int(worker_id))
         
-        # Notify the worker via Bot
-        # (Assuming the bot and admin panel share the same DB and I can't easily call bot logic from here 
-        # unless I use a trigger or the bot polls the DB. 
-        # For now, it updates the DB. The worker will see it in their bot menu.)
-        flash("Hodim muvaffaqiyatli biriktirildi!")
+        # Notify the worker via Bot API
+        import requests
+        bot_token = os.getenv("BOT_TOKEN")
+        if bot_token:
+            from database import get_order_by_id
+            order = get_order_by_id(order_id)
+            msg_text = (
+                f"🚨 <b>Sizga yangi buyurtma biriktirildi!</b>\n\n"
+                f"📦 #{order['order_number']}\n"
+                f"👤 Mijoz: {order['user_name']}\n"
+                f"💰 Summa: {order['total_price']:,} so'm\n\n"
+                f"Batafsil ma'lumot bot menyusida."
+            )
+            requests.post(f"https://api.telegram.org/bot{bot_token}/sendMessage", data={
+                "chat_id": worker_id,
+                "text": msg_text,
+                "parse_mode": "HTML"
+            })
+            
+        flash(f"Xodim muvaffaqiyatli biriktirildi!")
     else:
         flash("Xatolik: Hodim yoki buyurtma tanlanmagan.")
         
