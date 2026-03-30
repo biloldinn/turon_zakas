@@ -215,6 +215,13 @@ def get_order_photo(filename):
         os.makedirs(photo_dir)
     return send_from_directory(photo_dir, filename)
 
+@app.route("/order_docs/<path:filename>")
+def get_order_doc(filename):
+    doc_dir = os.path.join(BASE_DIR, "order_docs")
+    if not os.path.exists(doc_dir):
+        os.makedirs(doc_dir)
+    return send_from_directory(doc_dir, filename)
+
 @app.route("/api/ping")
 def ping():
     try:

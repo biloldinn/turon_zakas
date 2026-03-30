@@ -175,6 +175,17 @@
                 </div>
                 {% endif %}
 
+                {% if order.documents %}
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;">
+                    {% for d in order.documents %}
+                    <a href="/order_docs/{{ d.split('/')[-1] }}" target="_blank"
+                        style="font-size: 11px; padding: 4px 8px; background: rgba(79, 70, 229, 0.1); border: 1px solid var(--border); border-radius: 6px; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                        <ion-icon name="document-outline"></ion-icon> {{ d.split('/')[-1] }}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
                 {% if order.voice_note_url %}
                 <div style="margin-top: 8px;">
                     <audio controls
