@@ -20,7 +20,8 @@ try:
         get_all_workers, add_worker, remove_worker,
         get_all_orders, get_statistics, get_workers_ranking,
         assign_order_to_worker, update_order_payment_status, get_user_by_telegram_id,
-        get_all_news, add_news, delete_news, get_admin_user, get_admin_by_id
+        get_all_news, add_news, delete_news, get_admin_user, get_admin_by_id,
+        get_settings, update_settings
     )
     init_db()  # Initialize indexes and default admin
     logger.info("Successfully imported database functions and initialized DB")
