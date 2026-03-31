@@ -37,7 +37,16 @@ def init_db():
 # ============ SETTINGS FUNKSIYALARI ============
 
 def get_settings():
-    return db.settings.find_one({"type": "general"})
+    settings = db.settings.find_one({"type": "general"})
+    if not settings:
+        return {
+            "phone": "+998 90 123 45 67",
+            "address": "Turon o'quv markazi",
+            "work_hours": "09:00 - 18:00",
+            "card_number": "8600 1234 5678 9012",
+            "card_owner": "TURON OQUV MARKAZI"
+        }
+    return settings
 
 def update_settings(new_settings):
     db.settings.update_one(
